@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToroFolio</title>
+    <!-- Google Fonts: Outfit for titles, Inter for UI text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.0">
+</head>
+<body class="dark-theme"> <!-- Default to One UI Premium Dark Theme -->
+    
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="auth-screen">
+        <!-- Floating Backdrop Orbs for depth -->
+        <div class="auth-background-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+
+        <div class="new-auth-card">
+            <div class="new-auth-logo">
+                <div class="new-logo-container" style="background: transparent; box-shadow: none; width: 72px; height: 72px; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+                    <img src="logo.png" alt="ToroFolio" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <h2>ToroFolio</h2>
+                <p class="new-auth-subtitle">Secure Gateway</p>
+                <div class="new-status-pulse" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <div class="status-pulse-dot"></div>
+                    <span id="firebase-status-badge" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 500;">Simulated Mode (Local DB)</span>
+                </div>
+            </div>
+
+            <!-- Mode toggles inside the login card -->
+            <div class="new-auth-tabs">
+                <button type="button" class="new-auth-tab-btn active" id="tab-otp-login">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Mobile OTP
+                </button>
+                <button type="button" class="new-auth-tab-btn" id="tab-google-login">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" style="margin-right: 6px;">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Google Login
+                </button>
+            </div>
+
+            <div class="new-auth-content-area">
+                <!-- Mobile OTP Panel -->
+                <div id="new-otp-panel" class="new-auth-panel active">
+                    <form id="login-form">
+                        <div class="new-input-group" style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.04); border: 1.5px solid var(--border-color); border-radius: 14px; height: 50px; padding: 0 16px; gap: 8px;">
+                            <span class="input-prefix" style="font-weight: 700; color: var(--primary-blue); font-size: 0.95rem;">+91</span>
+                            <input type="tel" id="login-phone" placeholder="Enter Mobile Number" required pattern="[0-9]{10}" style="flex-grow: 1; background: none; border: none; outline: none; color: var(--text-primary); font-size: 0.95rem; font-weight: 600; font-family: inherit;">
+                        </div>
+
+                        <button type="button" class="btn btn-secondary btn-block" id="btn-send-otp" style="margin-top: 15px; font-weight: 700; height: 50px; border-radius: 14px; width: 100%;">
+                            Send Verification Code
+                        </button>
+                        
+                        <!-- Invisible reCAPTCHA container for Firebase SMS delivery -->
+                        <div id="recaptcha-container" style="margin-top: 10px; display: flex; justify-content: center;"></div>
+                        
+                        <div class="otp-digits-container hidden" id="otp-digits-area" style="margin-top: 20px;">
+                            <span style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; display: block; text-align: center; font-weight: 500;">Enter the verification code sent to your mobile number</span>
+                            <div class="otp-digit-inputs" style="display: flex; justify-content: center; gap: 10px;">
+                                <!-- Digit slots are generated dynamically via JavaScript -->
+                            </div>
+                            <div class="otp-timer-container" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted);">
+                                <span id="otp-timer">Resend OTP in 30s</span>
+                                <button type="button" class="resend-btn disabled" id="btn-resend-otp" disabled style="background: none; border: none; color: var(--primary-blue); font-weight: 700; cursor: pointer; padding: 0; outline: none;">Resend</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 20px; height: 50px; border-radius: 14px; font-weight: 700; width: 100%;" id="btn-login-submit">
+                            Verify & Sign In
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Google Panel -->
+                <div id="new-google-panel" class="new-auth-panel hidden" style="padding-top: 10px;">
+                    <p style="color: var(--text-secondary); font-size: 0.82rem; text-align: center; line-height: 1.6; margin-bottom: 25px; font-weight: 500;">
+                        Authenticate securely via your Gmail or Google Account to sync holdings directly.
+                    </p>
+                    
+                    <!-- Google Sign-in button -->
+                    <button type="button" class="btn-google-signin" id="google-signin-btn" style="height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 700; font-size: 0.95rem; width: 100%; border: 1.5px solid var(--border-color); background: rgba(255, 255, 255, 0.04); color: var(--text-primary); cursor: pointer; transition: all 0.3s ease;">
+                        <svg class="google-icon" viewBox="0 0 24 24" fill="none" width="20" height="20">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span>Continue with Google</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP SHELL -->
+    <div id="app-shell" class="app-shell hidden">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="ToroFolio" class="logo-icon" style="width: 32px; height: 32px; object-fit: contain;">
+                <span>ToroFolio</span>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <svg viewBox="0 0 24 24" class="nav-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="markets">
+                    <svg viewBox="0 0 24 24" class="nav-icon"><path d="M3 3v18h18M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Markets</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="ai-planner">
+                    <svg viewBox="0 0 24 24" class="nav-icon"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    <span class="ai-glow-text">Toro AI</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="profile">
+                    <svg viewBox="0 0 24 24" class="nav-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="help">
+                    <svg viewBox="0 0 24 24" class="nav-icon"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span>Help & Guide</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-pill" id="sidebar-user-pill">
+                    <img src="https://ui-avatars.com/api/?name=Guest+User&background=0381FE&color=fff&size=150" alt="Avatar" class="avatar-img" id="sidebar-user-avatar">
+                    <div class="user-info">
+                        <span class="username" id="sidebar-username">Guest User</span>
+                        <span class="user-badge" id="sidebar-user-badge">Conservative</span>
+                        <span class="user-clock" id="sidebar-user-clock" style="font-family: monospace; font-size: 0.72rem; color: var(--primary-blue); font-weight: 700; margin-top: 2px; letter-spacing: 0.5px;">12:00:00</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Window Container -->
+        <main class="main-window">
+            
+            <!-- Collapsible Top Header (One UI Viewing Area) -->
+            <header class="collapsible-header" id="app-header">
+                <div class="header-collapsed-bar">
+                    <div class="collapsed-title" id="collapsed-title-text">Dashboard</div>
+                    <div class="header-actions">
+                        <button class="icon-btn theme-toggle" id="theme-toggle-btn" aria-label="Toggle Theme">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        </button>
+                        <button class="icon-btn logout-btn" id="logout-btn" aria-label="Logout">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="header-expanded-area">
+                    <h1 class="expanded-title" id="expanded-title-text">Dashboard</h1>
+                    <p class="expanded-subtitle" id="expanded-subtitle-text">Hello, Guest. Ready to analyze your assets today?</p>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Window -->
+            <div class="content-viewport" id="content-viewport">
+                
+                <!-- DASHBOARD VIEW -->
+                <section id="dashboard-section" class="tab-content active">
+                    <div class="grid-layout">
+                        <!-- Groww-style Premium Asset Summary Panel -->
+                        <div class="card card-double-span grow-tracker-hero">
+                            <div class="tracker-summary-header">
+                                <div class="summary-left">
+                                    <span class="summary-label">Current Value</span>
+                                    <h1 class="summary-val" id="dash-portfolio-value">₹0.00</h1>
+                                </div>
+                                <div class="summary-right">
+                                    <div class="summary-stat-box">
+                                        <span class="stat-label">Total Invested</span>
+                                        <span class="stat-val" id="dash-invested-value">₹0.00</span>
+                                    </div>
+                                    <div class="summary-stat-box">
+                                        <span class="stat-label">Total Returns</span>
+                                        <span class="stat-val positive" id="dash-total-returns">+₹0.00 (+0.00%)</span>
+                                    </div>
+                                    <div class="summary-stat-box">
+                                        <span class="stat-label">1-Day Returns</span>
+                                        <span class="stat-val positive" id="dash-day-returns">+₹0.00 (+0.00%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Global Stock Search Suggestions & Track Hero Section (Focal Point of Dashboard) -->
+                        <div class="card card-double-span search-hero-section">
+                            <div class="hero-inner">
+                                <div class="hero-content">
+                                    <span class="ai-badge" style="margin-bottom: 12px; display: inline-block;">Toro AI Core Search</span>
+                                    <h2 class="hero-title" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff, #a0a0a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">Search & Track Stock Tickers</h2>
+                                    <p class="hero-subtitle" style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">Type any Indian NSE stock ticker below to inspect live actual prices, dynamic indicators, and track assets instantly!</p>
+                                </div>
+                                
+                                	<div class="hero-search-area">
+                                    <div class="hero-search-input-wrapper" style="position: relative; width: 100%;">
+                                        <svg class="search-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--primary-blue);">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                        <input type="text" id="import-ticker" placeholder="Search Indian stock ticker (e.g. RELIANCE, TCS, INFY, HDFCBANK)..." autocomplete="off" style="width: 100%; height: 56px; padding: 0 16px 0 52px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid var(--border-color); border-radius: 16px; color: var(--text-primary); font-family: var(--font-heading); font-size: 1rem; font-weight: 500; outline: none; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-sizing: border-box;">
+                                        <div id="ticker-suggestions" class="ticker-suggestions-dropdown hidden" style="position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: rgba(18, 18, 22, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-deep); z-index: 1000; max-height: 320px; overflow-y: auto; padding: 8px 0; box-sizing: border-box;"></div>
+                                    </div>
+
+                                    <!-- Trending / Popular Searches Pill tags grid -->
+                                    <div class="popular-searches-area" style="margin-top: 15px;">
+                                        <span class="popular-label">Trending Searches</span>
+                                        <div class="popular-tags-grid" id="trending-searches">
+                                            <div class="popular-tag-chip" data-ticker="RELIANCE"><div class="trend-icon-mini"></div>RELIANCE</div>
+                                            <div class="popular-tag-chip" data-ticker="TCS"><div class="trend-icon-mini"></div>TCS</div>
+                                            <div class="popular-tag-chip" data-ticker="INFY"><div class="trend-icon-mini"></div>INFY</div>
+                                            <div class="popular-tag-chip" data-ticker="HDFCBANK"><div class="trend-icon-mini"></div>HDFCBANK</div>
+                                            <div class="popular-tag-chip" data-ticker="ICICIBANK"><div class="trend-icon-mini"></div>ICICIBANK</div>
+                                            <div class="popular-tag-chip" data-ticker="SBIN"><div class="trend-icon-mini"></div>SBIN</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Hidden dynamic asset tracking input sliders (revealed on selection) -->
+                                <div id="hero-track-inputs" class="hero-track-form-area hidden" style="margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 16px; box-sizing: border-box; transition: all 0.3s ease;">
+                                    <h4 style="margin: 0 0 12px 0; font-family: var(--font-heading); font-size: 0.95rem; color: var(--primary-blue);">Track Selected Asset</h4>
+                                    <div class="track-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                        <div class="input-group-compact" style="display: flex; flex-direction: column; gap: 6px;">
+                                            <label for="import-price" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Buy Price (₹)</label>
+                                            <input type="number" id="import-price" placeholder="Buy Price" min="0.01" step="0.01" style="height: 44px; padding: 0 12px; background: var(--bg-interactive); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.9rem; outline: none;">
+                                        </div>
+                                        <div class="input-group-compact" style="display: flex; flex-direction: column; gap: 6px;">
+                                            <label for="import-qty" style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Shares Quantity</label>
+                                            <input type="number" id="import-qty" placeholder="Shares Count" min="1" step="1" style="height: 44px; padding: 0 12px; background: var(--bg-interactive); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.9rem; outline: none;">
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                        <button type="button" class="btn btn-primary" id="btn-hero-add-imported" style="flex: 2; height: 44px; border-radius: 12px; font-weight: 700; font-size: 0.88rem;">
+                                            + Import & Track with Toro AI
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="btn-hero-cancel-track" style="flex: 1; height: 44px; border-radius: 12px; font-weight: 700; font-size: 0.88rem;">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Market Watchlist Card -->
+                        <div class="card card-double-span">
+                            <div class="card-header">
+                                <h3>Market Watchlist</h3>
+                                <button class="btn btn-text btn-sm" id="view-all-watchlist">See Markets</button>
+                            </div>
+                            <div class="watchlist-list" id="dashboard-watchlist">
+                                <!-- Dynamic Watchlist Items -->
+                            </div>
+                        </div>
+
+                        <!-- Asset Allocation Card -->
+                        <div class="card card-double-span">
+                            <div class="card-header">
+                                <h3>My Portfolio Assets & Real holdings</h3>
+                            </div>
+                            <div class="portfolio-list" id="dashboard-portfolio-list">
+                                <!-- Dynamic holdings items -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MARKETS & INTERACTIVE CHART VIEW -->
+                <section id="markets-section" class="tab-content markets-loading">
+                    <div class="markets-grid">
+                        
+                        <!-- Stocks List (Left sidebar on desktop, collapsible bottom-sheet on mobile) -->
+                        <div class="card markets-list-card">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" class="search-icon"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                <input type="text" id="market-search" placeholder="Search stock tickers...">
+                                <div id="market-suggestions" class="ticker-suggestions-dropdown hidden" style="position: absolute; top: calc(100% + 4px); left: 0; width: 100%; z-index: 1000;"></div>
+                            </div>
+                            
+                            <div class="market-list-header">
+                                <span>Symbol / Name</span>
+                                <span class="text-right">Price / Change</span>
+                            </div>
+                            <div class="market-list-content" id="markets-ticker-list">
+                                <!-- Dynamic ticker rows -->
+                            </div>
+                        </div>
+
+                        <!-- Interactive Charting Area (Main Area) -->
+                        <div class="chart-main-area">
+                            
+                            <!-- Detailed Stock Header Info -->
+                            <div class="card stock-details-card">
+                                <div class="stock-header-info">
+                                    <div>
+                                        <div class="stock-title-row" style="display: flex; align-items: center; gap: 8px;">
+                                            <h2 id="chart-stock-symbol" class="skeleton-text">-</h2>
+                                            <span class="stock-name-badge skeleton-text" id="chart-stock-name">No active stock selected. Use the search bar above to look up and track stocks.</span>
+                                            <button id="chart-toggle-watchlist" class="btn-watchlist-star" title="Add to Wishlist" style="background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.2s ease; outline: none;">
+                                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="transition: fill 0.3s ease, color 0.3s ease;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="stock-price-row">
+                                            <span class="current-price-val skeleton-text" id="chart-stock-price">₹--</span>
+                                            <span class="price-change-pct positive skeleton-text" id="chart-stock-change">--</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="quick-ai-cta" id="run-ai-chart-analysis">
+                                        <div class="pulse-ring"></div>
+                                        <svg viewBox="0 0 24 24" class="ai-cta-icon" fill="currentColor"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/></svg>
+                                        <span>Analyze Chart with Toro AI</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dynamic Purchased Holdings Banner -->
+                                <div id="chart-stock-holdings-banner" class="hidden" style="margin-top: 14px; padding: 12px 18px; background: linear-gradient(135deg, rgba(46, 204, 113, 0.08), rgba(255, 255, 255, 0.02)); border: 1.5px solid rgba(46, 204, 113, 0.2); border-radius: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-sizing: border-box;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--green-up); box-shadow: 0 0 8px var(--green-up);"></div>
+                                        <span style="font-size: 0.82rem; color: var(--text-primary); font-weight: 700;">You own <span id="holdings-banner-shares" style="color: var(--green-up);">0 shares</span> of this stock</span>
+                                    </div>
+                                    <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.78rem;">
+                                        <div>
+                                            <span style="color: var(--text-muted); font-weight: 600;">Avg. Buy Price:</span>
+                                            <span id="holdings-banner-avg" style="font-family: monospace; font-weight: 700; color: var(--text-primary); margin-left: 4px;">₹0.00</span>
+                                        </div>
+                                        <div>
+                                            <span style="color: var(--text-muted); font-weight: 600;">Invested:</span>
+                                            <span id="holdings-banner-invested" style="font-family: monospace; font-weight: 700; color: var(--text-primary); margin-left: 4px;">₹0.00</span>
+                                        </div>
+                                        <div>
+                                            <span style="color: var(--text-muted); font-weight: 600;">Current Value:</span>
+                                            <span id="holdings-banner-value" style="font-family: monospace; font-weight: 700; color: var(--text-primary); margin-left: 4px;">₹0.00</span>
+                                        </div>
+                                        <div>
+                                            <span style="color: var(--text-muted); font-weight: 600;">Returns:</span>
+                                            <span id="holdings-banner-returns" style="font-family: monospace; font-weight: 700; margin-left: 4px;">+₹0.00 (+0.00%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- OHLC and Range Ribbon -->
+                                <div class="stock-stats-ribbon" style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border-color); display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: center;">
+                                    <div class="ohlc-data-strip" style="display: flex; gap: 28px; flex-wrap: wrap;">
+                                        <div class="stat-item">
+                                            <span class="stat-item-label" style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Open Price</span>
+                                            <span class="stat-item-val skeleton-text" id="chart-stock-open" style="font-family: monospace; font-size: 0.95rem; color: var(--text-primary); font-weight: 700;">₹--</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-item-label" style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Prev. Close</span>
+                                            <span class="stat-item-val skeleton-text" id="chart-stock-prev-close" style="font-family: monospace; font-size: 0.95rem; color: var(--text-secondary); font-weight: 700;">₹--</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-item-label" style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Live Volume</span>
+                                            <span class="stat-item-val skeleton-text" id="chart-stock-volume" style="font-family: monospace; font-size: 0.95rem; color: var(--text-primary); font-weight: 700;">--</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="range-sliders-strip" style="display: flex; flex-direction: column; gap: 12px; min-width: 280px; flex-grow: 1; max-width: 400px;">
+                                        <!-- Today's High/Low Range Bar -->
+                                        <div class="range-bar-row" style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                            <div style="min-width: 75px; text-align: right;">
+                                                <span style="font-size: 0.65rem; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Today Low</span>
+                                                <span id="chart-stock-today-low" class="skeleton-text" style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">₹--</span>
+                                            </div>
+                                            <div class="range-bar-container" style="position: relative; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; flex-grow: 1; min-width: 100px;">
+                                                <div id="chart-stock-today-progress" style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: linear-gradient(90deg, var(--red-down), var(--primary-blue), var(--green-up)); border-radius: 3px;"></div>
+                                                <div id="chart-stock-today-indicator" style="position: absolute; top: -3px; left: 0%; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid var(--primary-blue); box-shadow: 0 0 8px rgba(3,129,254,0.6); transform: translateX(-50%); transition: left 0.3s ease;"></div>
+                                            </div>
+                                            <div style="min-width: 75px; text-align: left;">
+                                                <span style="font-size: 0.65rem; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Today High</span>
+                                                <span id="chart-stock-today-high" class="skeleton-text" style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">₹--</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 52-Week High/Low Range Bar -->
+                                        <div class="range-bar-row" style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                            <div style="min-width: 75px; text-align: right;">
+                                                <span style="font-size: 0.65rem; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">52W Low</span>
+                                                <span id="chart-stock-52w-low" class="skeleton-text" style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">₹--</span>
+                                            </div>
+                                            <div class="range-bar-container" style="position: relative; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; flex-grow: 1; min-width: 100px;">
+                                                <div id="chart-stock-52w-progress" style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: linear-gradient(90deg, var(--red-down), var(--primary-blue), var(--green-up)); border-radius: 3px;"></div>
+                                                <div id="chart-stock-52w-indicator" style="position: absolute; top: -3px; left: 0%; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid var(--primary-blue); box-shadow: 0 0 8px rgba(3,129,254,0.6); transform: translateX(-50%); transition: left 0.3s ease;"></div>
+                                            </div>
+                                            <div style="min-width: 75px; text-align: left;">
+                                                <span style="font-size: 0.65rem; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">52W High</span>
+                                                <span id="chart-stock-52w-high" class="skeleton-text" style="font-family: monospace; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">₹--</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TradingView-style Interactive Chart -->
+                            <div class="card chart-canvas-card">
+                                <div class="chart-controls">
+                                    <!-- Timeframe pills -->
+                                    <div class="timeframe-selector">
+                                        <button class="time-btn active" data-time="1D">1D</button>
+                                        <button class="time-btn" data-time="1W">1W</button>
+                                        <button class="time-btn" data-time="1M">1M</button>
+                                        <button class="time-btn" data-time="3M">3M</button>
+                                        <button class="time-btn" data-time="6M">6M</button>
+                                        <button class="time-btn" data-time="1Y">1Y</button>
+                                        <button class="time-btn" data-time="3Y">3Y</button>
+                                        <button class="time-btn" data-time="5Y">5Y</button>
+                                        <button class="time-btn" data-time="ALL">ALL</button>
+                                    </div>
+                                    
+                                    <!-- Chart type toggle (Candlestick vs Line) -->
+                                    <div class="chart-type-selector">
+                                        <button class="chart-type-btn active" id="chart-type-candles" title="Candlestick Chart">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v18M18 3v18M10 6h4v12h-4z" stroke-linecap="round"/></svg>
+                                        </button>
+                                        <button class="chart-type-btn" id="chart-type-line" title="Line Chart">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18l6-6 4 4 8-8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Technical indicators toggles -->
+                                     <div class="indicators-selector">
+                                         <label class="checkbox-container">
+                                             <input type="checkbox" id="indicator-ema" checked>
+                                             <span class="custom-checkbox"></span>
+                                             <span class="label-text">EMA (20)</span>
+                                         </label>
+                                         <label class="checkbox-container">
+                                             <input type="checkbox" id="indicator-rsi" checked>
+                                             <span class="custom-checkbox"></span>
+                                             <span class="label-text">RSI</span>
+                                         </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="indicator-macd">
+                                            <span class="custom-checkbox"></span>
+                                            <span class="label-text">MACD</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- The interactive drawing canvas layers -->
+                                <div class="chart-draw-area" id="chart-draw-area">
+                                    <canvas id="primary-chart-canvas"></canvas>
+                                    <canvas id="secondary-chart-canvas" class="hidden"></canvas>
+                                    <div class="chart-tooltip" id="chart-tooltip"></div>
+                                    <div class="chart-skeleton-overlay">
+                                        <div class="skeleton-chart-glow"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stock Fundamentals Section -->
+                            <div class="card stock-fundamentals-card">
+                                <div class="card-header">
+                                    <h3>Fundamentals</h3>
+                                </div>
+                                <div class="fundamentals-grid">
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Market Cap</span>
+                                        <span class="fund-val skeleton-text" id="fund-mcap">₹--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">P/E Ratio(TTM)</span>
+                                        <span class="fund-val skeleton-text" id="fund-pe">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">P/B Ratio</span>
+                                        <span class="fund-val skeleton-text" id="fund-pb">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Industry P/E</span>
+                                        <span class="fund-val skeleton-text" id="fund-industry-pe">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Debt to Equity</span>
+                                        <span class="fund-val skeleton-text" id="fund-debt-to-equity">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">ROE</span>
+                                        <span class="fund-val skeleton-text" id="fund-roe">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Book Value</span>
+                                        <span class="fund-val skeleton-text" id="fund-book-value">₹--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Dividend Yield</span>
+                                        <span class="fund-val skeleton-text" id="fund-div-yield">--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">EPS(TTM)</span>
+                                        <span class="fund-val skeleton-text" id="fund-eps">₹--</span>
+                                    </div>
+                                    <div class="fundamental-item">
+                                        <span class="fund-label">Face Value</span>
+                                        <span class="fund-val skeleton-text" id="fund-face-value">₹--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Smart Trade Advisor Card -->
+                            <div class="card trade-advisor-card mt-4">
+                                <div class="card-header flex justify-between items-center">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-magic text-blue"></i>
+                                        <h3>Smart Trade Advisor</h3>
+                                    </div>
+                                    <span class="badge advisor-badge" id="advisor-verdict">Evaluating...</span>
+                                </div>
+                                <div class="advisor-content">
+                                    <!-- Valuation Speedometer & Gauge -->
+                                    <div class="advisor-gauge-section">
+                                        <div class="gauge-container">
+                                            <div class="gauge-needle" id="advisor-gauge-needle" style="transform: rotate(-90deg);"></div>
+                                            <div class="gauge-center">
+                                                <span id="gauge-score">50%</span>
+                                                <span class="gauge-label">Score</span>
+                                            </div>
+                                        </div>
+                                        <div class="gauge-description" id="advisor-verdict-desc">
+                                            Analyzing financial health, technical indicators, and Graham valuation metrics...
+                                        </div>
+                                    </div>
+
+                                    <div class="advisor-details-grid">
+                                        <!-- Intrinsic Value -->
+                                        <div class="advisor-metric-card">
+                                            <span class="advisor-metric-label">Graham Intrinsic Value</span>
+                                            <span class="advisor-metric-value" id="advisor-graham-val">₹--</span>
+                                            <span class="advisor-metric-sub" id="advisor-graham-diff">--</span>
+                                        </div>
+
+                                        <!-- Perfect Entry Range -->
+                                        <div class="advisor-metric-card">
+                                            <span class="advisor-metric-label">Perfect Entry (Support S1)</span>
+                                            <span class="advisor-metric-value text-green" id="advisor-entry-price">₹--</span>
+                                            <span class="advisor-metric-sub">Ideal entry threshold</span>
+                                        </div>
+
+                                        <!-- Target Profit Range -->
+                                        <div class="advisor-metric-card">
+                                            <span class="advisor-metric-label">Target Profit (Resistance R1)</span>
+                                            <span class="advisor-metric-value text-blue" id="advisor-target-price">₹--</span>
+                                            <span class="advisor-metric-sub">Exit/profit target zone</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GALAXY AI HUB & AUTOMATED PLANNER VIEW -->
+                <section id="ai-planner-section" class="tab-content">
+                    <div class="ai-hub-grid">
+                        
+                        <!-- AI Conversational Portal (Left panel) -->
+                        <div class="card ai-chat-card">
+                            <div class="ai-chat-header">
+                                <div class="ai-sparkle-header">
+                                    <svg viewBox="0 0 24 24" class="ai-header-star" fill="currentColor"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/></svg>
+                                    <span>Toro AI Consultant</span>
+                                </div>
+                                <span class="ai-header-status">Online</span>
+                            </div>
+                            
+                            <!-- Scrollable Chat window -->
+                            <div class="ai-chat-messages" id="ai-chat-messages">
+                                <div class="message ai-message">
+                                    <div class="message-bubble">
+                                        Hello Guest! I am your <strong>Toro AI Assistant</strong>, aligned to your <strong>Conservative</strong> risk profile. Ask me about stock technical indicators, analysis, or setting up smart automated purchase triggers.
+                                    </div>
+                                    <span class="message-time">12:55 PM</span>
+                                </div>
+                            </div>
+                            
+
+                            
+                            <!-- Text Input area -->
+                            <div class="chat-input-bar">
+                                <input type="text" id="ai-chat-input" placeholder="Ask Toro AI something...">
+                                <button class="icon-btn-accent" id="send-ai-chat-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Risk Preferences Tuning -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Toro AI Risk Tuning</h3>
+                            </div>
+                            <p class="card-desc">Adjusting your risk limits recalibrates the **Toro AI Advisor** buy/sell threshold triggers and custom chart metrics.</p>
+                            
+                            <div class="risk-selector-vertical">
+                                <label class="risk-card-label">
+                                    <input type="radio" name="profile-risk-select" value="conservative" checked>
+                                    <div class="risk-card-content">
+                                        <div class="risk-card-title">Conservative</div>
+                                        <div class="risk-card-desc">Focus on blue-chip stocks. AI signals trigger only on strong oversold metrics (RSI &lt; 30). Minimal risk profile.</div>
+                                    </div>
+                                </label>
+                                <label class="risk-card-label">
+                                    <input type="radio" name="profile-risk-select" value="balanced">
+                                    <div class="risk-card-content">
+                                        <div class="risk-card-title">Balanced</div>
+                                        <div class="risk-card-desc">Blends blue-chips and high-growth assets. AI signal triggers on normal support rebounds (RSI &lt; 40). Medium risk profile.</div>
+                                    </div>
+                                </label>
+                                <label class="risk-card-label">
+                                    <input type="radio" name="profile-risk-select" value="aggressive">
+                                    <div class="risk-card-content">
+                                        <div class="risk-card-title">Aggressive</div>
+                                        <div class="risk-card-desc">Emphasizes volatile tech stocks, crypto. AI signals alert on shorter momentum shifts, breakouts, and trend reversals. High risk.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- USER PROFILE VIEW & SETTINGS -->
+                <section id="profile-section" class="tab-content">
+                    <div class="grid-layout">
+                        <!-- Profile Card -->
+                        <div class="card profile-header-card">
+                            <div class="profile-main-info">
+                                <div class="profile-avatar-container">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="profile-avatar">
+                                    <span class="online-indicator"></span>
+                                </div>
+                                <div class="profile-text-details">
+                                    <div class="profile-name-row">
+                                        <h2 id="profile-user-name">Guest User</h2>
+                                    </div>
+                                    <p class="profile-email" id="profile-user-email">guest@torofolio.com</p>
+                                </div>
+                                <button class="btn btn-secondary btn-sm" id="btn-edit-profile">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
+                                    <span>Edit Profile</span>
+                                </button>
+                            </div>
+
+                            <!-- Personal Details Sub-Section inside profile-header-card -->
+                            <div class="profile-personal-details-section" style="border-top: 1px dashed var(--border-color); padding-top: 20px; margin-top: 20px;">
+                                <h4 style="margin: 0 0 16px 0; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 0.5px;">Personal Details</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+                                    <div>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">Phone Number</span>
+                                        <strong id="profile-detail-phone" style="font-size: 0.9rem; color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">Date of Birth</span>
+                                        <strong id="profile-detail-dob" style="font-size: 0.9rem; color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">City</span>
+                                        <strong id="profile-detail-city" style="font-size: 0.9rem; color: var(--text-primary);">-</strong>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 2px;">State</span>
+                                        <strong id="profile-detail-state" style="font-size: 0.9rem; color: var(--text-primary);">-</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+                        <!-- Database Backup & Restore -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Portfolio Backup & Restore</h3>
+                            </div>
+                            <p class="card-desc">Safeguard your portfolio data physically. Export your database to a JSON file, or restore a backup from a saved file.</p>
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-secondary flex-1 btn-sm" id="btn-export-db">
+                                    Export Backup
+                                </button>
+                                <button class="btn btn-primary flex-1 btn-sm" id="btn-import-db" type="button" style="display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; margin: 0; padding: 8px 12px; font-size: 0.72rem; font-weight: 700; border-radius: 12px; height: 38px; box-sizing: border-box;">
+                                    Import Backup
+                                </button>
+                                <input type="file" id="file-import-db" accept=".json" style="display: none;">
+                            </div>
+                        </div>
+
+                        <!-- Danger Zone: Local Database resets -->
+                        <div class="card" style="border-color: rgba(239, 68, 68, 0.25); background: linear-gradient(135deg, rgba(239, 68, 68, 0.04), transparent);">
+                            <div class="card-header" style="color: var(--red-down);">
+                                <h3>Danger Zone</h3>
+                            </div>
+                            <p class="card-desc">Resetting clears your browser's persistent LocalStorage, resetting your wallet and holdings back to standard defaults.</p>
+                            <button class="btn btn-secondary btn-block btn-sm" id="btn-reset-db" style="border-color: var(--red-down); color: var(--red-down);">
+                                Reset Portfolio Database
+                            </button>
+                        </div>
+
+
+                        <!-- Help & Guide Section -->
+                        <div class="card help-guide-card">
+                            <div class="card-header">
+                                <h3>Help & Guide</h3>
+                            </div>
+                            <p class="card-desc" style="margin-bottom: 18px;">Learn what each chart indicator means and how to use the platform's features effectively.</p>
+
+                            <!-- EMA -->
+                            <details class="help-accordion" style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+                                <summary style="padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-primary); background: var(--bg-interactive); display: flex; align-items: center; gap: 10px; user-select: none;">
+                                    EMA (20) — Exponential Moving Average
+                                </summary>
+                                <div style="padding: 16px 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid var(--border-color);">
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">Full Form:</strong> Exponential Moving Average (20-period)</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">What it does:</strong> The EMA smooths out price data by calculating a weighted average of the last <strong>20 candles</strong> (time periods). Unlike a simple average, it gives <em>more weight to recent prices</em>, making it react faster to new trends.</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">How to read it:</strong></p>
+                                    <ul style="margin: 0 0 10px 16px; padding: 0;">
+                                        <li>📈 <strong>Price above EMA line</strong> → Stock is in an <span style="color: #00C853; font-weight: 600;">uptrend</span> (bullish momentum)</li>
+                                        <li>📉 <strong>Price below EMA line</strong> → Stock is in a <span style="color: #FF5252; font-weight: 600;">downtrend</span> (bearish momentum)</li>
+                                        <li>🔄 <strong>Price crosses EMA from below</strong> → Potential <span style="color: #00C853; font-weight: 600;">buy signal</span></li>
+                                        <li>🔄 <strong>Price crosses EMA from above</strong> → Potential <span style="color: #FF5252; font-weight: 600;">sell signal</span></li>
+                                    </ul>
+                                    <p style="margin: 0; padding: 10px 14px; background: rgba(3,129,254,0.08); border-radius: 10px; font-size: 0.82rem;">💡 <strong>Tip:</strong> The EMA-20 works best for short-to-medium term swing trading. Combine it with RSI for stronger confirmation signals.</p>
+                                </div>
+                            </details>
+
+                            <!-- RSI -->
+                            <details class="help-accordion" style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+                                <summary style="padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-primary); background: var(--bg-interactive); display: flex; align-items: center; gap: 10px; user-select: none;">
+                                    RSI — Relative Strength Index
+                                </summary>
+                                <div style="padding: 16px 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid var(--border-color);">
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">Full Form:</strong> Relative Strength Index (14-period)</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">What it does:</strong> RSI measures the <strong>speed and magnitude</strong> of recent price changes to evaluate whether a stock is <em>overbought</em> or <em>oversold</em>. It oscillates between <strong>0 and 100</strong>.</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">How to read it:</strong></p>
+                                    <ul style="margin: 0 0 10px 16px; padding: 0;">
+                                        <li>🔴 <strong>RSI &gt; 70</strong> → Stock is <span style="color: #FF5252; font-weight: 600;">overbought</span> — price may drop soon (sell signal)</li>
+                                        <li>🟢 <strong>RSI &lt; 30</strong> → Stock is <span style="color: #00C853; font-weight: 600;">oversold</span> — price may rebound (buy signal)</li>
+                                        <li>⚖️ <strong>RSI 40–60</strong> → Neutral zone — no strong signal</li>
+                                    </ul>
+                                    <p style="margin: 0; padding: 10px 14px; background: rgba(170,0,255,0.08); border-radius: 10px; font-size: 0.82rem;">💡 <strong>Tip:</strong> RSI below 30 is often the best time to buy undervalued stocks. Combine it with EMA crossovers for even stronger confirmation.</p>
+                                </div>
+                            </details>
+
+                            <!-- MACD -->
+                            <details class="help-accordion" style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+                                <summary style="padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-primary); background: var(--bg-interactive); display: flex; align-items: center; gap: 10px; user-select: none;">
+                                    MACD — Moving Average Convergence Divergence
+                                </summary>
+                                <div style="padding: 16px 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid var(--border-color);">
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">Full Form:</strong> Moving Average Convergence Divergence</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">What it does:</strong> MACD tracks the <strong>relationship between two EMAs</strong> (usually 12-period and 26-period). It shows <em>momentum shifts</em> and <em>trend direction changes</em> — essentially telling you when a trend is gaining or losing steam.</p>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">Components:</strong></p>
+                                    <ul style="margin: 0 0 10px 16px; padding: 0;">
+                                        <li>📊 <strong>MACD Line</strong> = EMA(12) − EMA(26) — shows momentum direction</li>
+                                        <li>📈 <strong>Signal Line</strong> = EMA(9) of the MACD — acts as a trigger</li>
+                                        <li>📉 <strong>Histogram</strong> = MACD − Signal — shows the gap between them</li>
+                                    </ul>
+                                    <p style="margin: 0 0 10px 0;"><strong style="color: var(--text-primary);">How to read it:</strong></p>
+                                    <ul style="margin: 0 0 10px 16px; padding: 0;">
+                                        <li>🟢 <strong>MACD crosses above Signal</strong> → <span style="color: #00C853; font-weight: 600;">Bullish crossover</span> (buy signal)</li>
+                                        <li>🔴 <strong>MACD crosses below Signal</strong> → <span style="color: #FF5252; font-weight: 600;">Bearish crossover</span> (sell signal)</li>
+                                        <li>📊 <strong>Histogram growing</strong> → Trend is strengthening</li>
+                                        <li>📊 <strong>Histogram shrinking</strong> → Trend is weakening</li>
+                                    </ul>
+                                    <p style="margin: 0; padding: 10px 14px; background: rgba(255,109,0,0.08); border-radius: 10px; font-size: 0.82rem;">💡 <strong>Tip:</strong> MACD is best for identifying trend reversals. Use it alongside EMA and RSI — when all three align (e.g., price crosses above EMA + RSI rising from oversold + MACD bullish crossover), it's a very strong buy signal.</p>
+                                </div>
+                            </details>
+
+                            <!-- Smart Trade Advisor Help -->
+                            <details class="help-accordion" style="margin-bottom: 12px; border: 1.5px dashed rgba(64, 150, 255, 0.3); border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, rgba(24, 24, 30, 0.95), rgba(18, 18, 22, 0.98));">
+                                <summary style="padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-primary); background: var(--bg-interactive); display: flex; align-items: center; gap: 10px; user-select: none;">
+                                    <i class="fas fa-magic text-blue"></i> Smart Trade Advisor — How It Works & Key Metrics
+                                </summary>
+                                <div style="padding: 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid var(--border-color);">
+                                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">🎯 1. What is the Smart Trade Advisor?</strong>
+                                            <p style="margin: 0;">The Smart Trade Advisor is ToroFolio's real-time valuation engine. It combines fundamental value metrics (Graham Intrinsic Value) and technical momentum indicators (Pivot Support & Resistance) to calculate whether a stock is a <strong>Strong Buy</strong>, <strong>Accumulate</strong>, or <strong>Sell / Avoid</strong>.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">📈 2. Speedometer Rating Gauge (10% - 90%)</strong>
+                                            <p style="margin: 0;">The visual gauge rates the asset's overall health score based on 4 core pillars:</p>
+                                            <ul style="margin: 6px 0 0 20px; padding: 0;">
+                                                <li><strong>P/E vs Industry P/E:</strong> Stocks trading below industry P/E receive score boosts.</li>
+                                                <li><strong>Graham Intrinsic Discount:</strong> Prices below Graham Value add up to +15% score.</li>
+                                                <li><strong>Return on Equity (ROE):</strong> Higher ROE (>15%) increases confidence rating.</li>
+                                                <li><strong>Debt to Equity Ratio:</strong> Low or zero debt companies receive safety bonuses.</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">💎 3. Benjamin Graham Intrinsic Value</strong>
+                                            <p style="margin: 0;">Calculated as <code>&radic;(22.5 &times; EPS &times; Book Value)</code>. Named after the father of value investing, Benjamin Graham. If current market price is below this intrinsic value, the stock is trading at an attractive <strong>Discount</strong>.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">🎯 4. Perfect Entry (Pivot Support S1)</strong>
+                                            <p style="margin: 0;">Calculated dynamically from today's High, Low, and Close price action. Represents the primary technical support floor where institutional buying interest creates an optimal low-risk entry price.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">🚀 5. Target Profit (Pivot Resistance R1)</strong>
+                                            <p style="margin: 0;">Represents the upper technical resistance ceiling. This is the optimal price zone to consider locking in profits or executing limit exit orders.</p>
+                                        </div>
+                                        <p style="margin: 0; padding: 10px 14px; background: rgba(38,166,154,0.1); border: 1px solid rgba(38,166,154,0.2); border-radius: 10px; font-size: 0.82rem; color: var(--text-primary);">💡 <strong>Pro Tip:</strong> For best results, use the Smart Trade Advisor alongside Google Gemini AI in the AI Planner tab for personalized multi-timeframe analysis!</p>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Stock Fundamentals Help -->
+                            <details class="help-accordion" style="margin-bottom: 12px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+                                <summary style="padding: 16px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-primary); background: var(--bg-interactive); display: flex; align-items: center; gap: 10px; user-select: none;">
+                                    Fundamentals of Stocks — Key Definitions
+                                </summary>
+                                <div style="padding: 20px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid var(--border-color);">
+                                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">1. Market Cap (Market Capitalization)</strong>
+                                            <p style="margin: 0;">Market cap is the total market value of all of a company's outstanding shares. It represents the public's evaluation of the company's total equity value.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">2. P/E Ratio (Price-to-Earnings Ratio)</strong>
+                                            <p style="margin: 0;">P/E (price-to-earnings) ratio is the ratio of a company's share price to its earnings per share (EPS). P/E ratio is used to determine whether a stock is overvalued or undervalued relative to its earnings power.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">3. P/B Ratio (Price-to-Book Ratio)</strong>
+                                            <p style="margin: 0;">P/B (price-to-book) ratio is the ratio of a company's share price to its book value. Any value under 1.0 is generally considered a good valuation buffer, representing that the stock trades below its asset liquidating value.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">4. Industry P/E</strong>
+                                            <p style="margin: 0;">The average P/E ratio of all the stocks in any sector. Different sectors consider different P/E ratios as healthy depending on growth potential, regulatory overhead, and margins.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">5. Debt to Equity</strong>
+                                            <p style="margin: 0;">Debt to Equity is the percentage of the total liabilities of a company (debt) to its shareholders' equity. A higher debt to equity means the company is using more debt funds than equity funds, and a lower debt to equity means more equity than debt funds.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">6. ROE (Return on Equity)</strong>
+                                            <p style="margin: 0;">Return on equity (ROE) is a measure of financial performance, calculated by dividing net income by shareholders' equity. It reflects how efficiently a firm manages the capital that shareholders have invested.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">7. Book Value</strong>
+                                            <p style="margin: 0;">The amount of money that a company's shareholders would earn if the company is liquidated and has paid off all liabilities. It is the net asset value of the company.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">8. Dividend Yield</strong>
+                                            <p style="margin: 0;">Dividend yield percentage is the amount of money a company pays its shareholders for owning a share of its stock divided by its current stock price. A high dividend yield indicates strong cash distribution relative to the share price.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">9. EPS (Earnings Per Share)</strong>
+                                            <p style="margin: 0;">Earnings per share (EPS) is a company's net profit divided by the number of its common outstanding shares. It indicates how much money a company makes for each share of its stock.</p>
+                                        </div>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">10. Face Value</strong>
+                                            <p style="margin: 0;">The original value of a company's stock as written in its books of accounts and its share certificates. Also known as par value, it is fixed when the stock is first issued and is used to calculate dividend payouts.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+
+                        <!-- Tracked Assets Log Card -->
+                        <div class="card card-double-span">
+                            <div class="card-header">
+                                <h3>Tracked Assets Log & Imports History</h3>
+                            </div>
+                            <div class="history-table-container">
+                                <table class="history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date & Time</th>
+                                            <th>Type</th>
+                                            <th>Asset</th>
+                                            <th>Shares</th>
+                                            <th>Avg Price</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="profile-history-table-body">
+                                        <!-- Dynamic table rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <!-- HELP & USER GUIDE VIEW -->
+                <section id="help-section" class="tab-content">
+                    <!-- Hero Banner -->
+                    <div class="help-hero-card">
+                        <div class="help-hero-header">
+                            <div class="help-hero-title-area">
+                                <h2>
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--primary-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" stroke-linecap="round"/></svg>
+                                    Help & User Guide
+                                </h2>
+                                <p>Learn how to navigate ToroFolio, analyze charts, and set automated AI trading rules.</p>
+                            </div>
+                            <div class="help-search-box">
+                                <svg class="help-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                <input type="text" id="help-search-input" placeholder="Search guide topics or FAQs...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Main Feature Guides Grid -->
+                    <div class="help-guide-grid">
+                        <!-- Guide 1: Dashboard & Tracking -->
+                        <div class="help-guide-card" data-keywords="dashboard tracking search nse stock asset portfolio returns">
+                            <div class="help-guide-card-header">
+                                <div class="help-guide-icon-badge blue">📊</div>
+                                <div>
+                                    <h3 class="help-guide-card-title">Asset Tracking & Dashboard</h3>
+                                    <p class="help-guide-card-subtitle">Manage portfolio holdings & real-time returns</p>
+                                </div>
+                            </div>
+                            <ul class="help-guide-steps">
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">1</span>
+                                    <span><strong>Track Stock Assets:</strong> Use the global Search Bar to find any NSE stock (e.g., RELIANCE, TCS, INFY, SBIN). Enter shares & buy price to track.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">2</span>
+                                    <span><strong>Portfolio Performance:</strong> View total current value, invested capital, total returns (₹ and %), and 1-day daily gain/loss in real-time.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">3</span>
+                                    <span><strong>Untrack Assets:</strong> Click the red cross (✕) on any holding card in your Dashboard to remove it from tracking.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Guide 2: Technical Market Charts -->
+                        <div class="help-guide-card" data-keywords="markets chart candlestick intraday timeframe 1d 1w rsi ema macd">
+                            <div class="help-guide-card-header">
+                                <div class="help-guide-icon-badge green">📈</div>
+                                <div>
+                                    <h3 class="help-guide-card-title">Real-Time Interactive Charts</h3>
+                                    <p class="help-guide-card-subtitle">TradingView-style candles & technical indicators</p>
+                                </div>
+                            </div>
+                            <ul class="help-guide-steps">
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">1</span>
+                                    <span><strong>1D Intraday View:</strong> Selecting <strong>1D</strong> shows today's single market session (09:15 AM to 03:30 PM) with 5-minute candles.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">2</span>
+                                    <span><strong>1W / 1M / 1Y Timeframes:</strong> <strong>1W</strong> shows Monday-to-Friday trading days, skipping weekends and stock market holidays.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">3</span>
+                                    <span><strong>Indicators & Crosshair:</strong> Toggle EMA (20), RSI (14), and MACD overlays. Move cursor over chart to view calibrated OHLC price tooltips.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Guide 3: Toro AI Advisor & Rules -->
+                        <div class="help-guide-card" data-keywords="ai planner groq llama chatbot rsi trigger rule risk profile tuning">
+                            <div class="help-guide-card-header">
+                                <div class="help-guide-icon-badge purple">🤖</div>
+                                <div>
+                                    <h3 class="help-guide-card-title">Toro AI Risk Tuning & Rules</h3>
+                                    <p class="help-guide-card-subtitle">AI-assisted analysis & automated execution</p>
+                                </div>
+                            </div>
+                            <ul class="help-guide-steps">
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">1</span>
+                                    <span><strong>Toro AI Chatbot:</strong> Ask any trading question in the <em>Toro AI</em> tab to get instant analysis powered by Groq AI (<code>llama-3.3-70b</code>).</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">2</span>
+                                    <span><strong>RSI Automated Triggers:</strong> Set automated buy/sell rules (e.g., "BUY 10 shares of RELIANCE when RSI drops below 30").</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">3</span>
+                                    <span><strong>Risk Profile Tuning:</strong> Select Conservative, Moderate, or Aggressive risk preferences to customize AI suggestions.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Guide 4: Security & Data Backup -->
+                        <div class="help-guide-card" data-keywords="profile sqlite database backup json restore security biometrics">
+                            <div class="help-guide-card-header">
+                                <div class="help-guide-icon-badge orange">🛡️</div>
+                                <div>
+                                    <h3 class="help-guide-card-title">Security & Database Backup</h3>
+                                    <p class="help-guide-card-subtitle">Local SQLite storage & multi-user account export</p>
+                                </div>
+                            </div>
+                            <ul class="help-guide-steps">
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">1</span>
+                                    <span><strong>Local SQLite Server:</strong> All portfolio holdings, AI rules, and transaction logs persist automatically to your local SQLite server.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">2</span>
+                                    <span><strong>Physical JSON Export:</strong> Go to <em>Profile</em> &gt; <em>Export Backup</em> to save a standalone <code>.json</code> file of your entire database.</span>
+                                </li>
+                                <li class="help-guide-step-item">
+                                    <span class="help-guide-step-num">3</span>
+                                    <span><strong>Database Restore:</strong> Click <em>Import Backup</em> to restore your portfolio accounts onto any browser or device.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Accordion Section -->
+                    <div class="faq-section-card">
+                        <h3 class="faq-section-title">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary-blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+                            Frequently Asked Questions (FAQ)
+                        </h3>
+                        <div class="faq-list" id="faq-accordion-list">
+                            <div class="faq-item" data-keywords="1d 1 day chart hours time today intraday">
+                                <button class="faq-question">
+                                    <span>Why does the 1D chart only show today's trading hours?</span>
+                                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div class="faq-answer">
+                                    A <strong>1D (1 Day)</strong> timeframe is calibrated for single-session intraday analysis. It displays today's market session from <strong>09:15 AM to 03:30 PM</strong> with 5-minute interval candles. To view multi-day history, select <strong>1W</strong> (1 Week), <strong>1M</strong> (1 Month), or <strong>1Y</strong> (1 Year).
+                                </div>
+                            </div>
+
+                            <div class="faq-item" data-keywords="1w week monday friday holiday weekend">
+                                <button class="faq-question">
+                                    <span>How does the 1W (1 Week) chart handle weekend days and market holidays?</span>
+                                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div class="faq-answer">
+                                    The <strong>1W</strong> chart fetches data for the 5 active trading days of the week (Monday to Friday). Stock exchange holidays and weekend days (Saturday & Sunday) are automatically omitted so your technical indicators remain clean and accurate.
+                                </div>
+                            </div>
+
+                            <div class="faq-item" data-keywords="groq gemini ai model free api key">
+                                <button class="faq-question">
+                                    <span>What AI model powers the Toro AI Advisor?</span>
+                                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div class="faq-answer">
+                                    Toro AI uses high-speed Groq AI acceleration with the <code>llama-3.3-70b-versatile</code> model. It analyzes live stock prices, RSI momentum indicators, risk settings, and fundamentals to provide instant financial advice.
+                                </div>
+                            </div>
+
+                            <div class="faq-item" data-keywords="rsi rule trigger auto order buy sell">
+                                <button class="faq-question">
+                                    <span>How do automated RSI rules execute orders?</span>
+                                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div class="faq-answer">
+                                    When you create a rule in the <em>Toro AI</em> tab (e.g., <code>BUY RELIANCE when RSI < 30</code>), the background engine monitors live market ticks. When conditions are met, it automatically logs an execution order and updates your portfolio balance.
+                                </div>
+                            </div>
+
+                            <div class="faq-item" data-keywords="backup export import json sqlite restore transfer">
+                                <button class="faq-question">
+                                    <span>How can I back up or transfer my portfolio to another computer?</span>
+                                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div class="faq-answer">
+                                    Navigate to your <strong>Profile</strong> tab and click <strong>Export Backup</strong>. This downloads a physical <code>.json</code> file containing all registered users, holdings, orders, and AI rules. You can then use <strong>Import Backup</strong> on any other device to restore your account state.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Bottom Navigation Bar (Mobile / Responsive) -->
+            <nav class="bottom-nav">
+                <a href="#" class="bottom-nav-item active" data-tab="dashboard">
+                    <svg viewBox="0 0 24 24" class="bottom-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-tab="markets">
+                    <svg viewBox="0 0 24 24" class="bottom-icon"><path d="M3 3v18h18M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Markets</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-tab="ai-planner">
+                    <svg viewBox="0 0 24 24" class="bottom-icon"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    <span class="ai-glow-text">Toro AI</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-tab="profile">
+                    <svg viewBox="0 0 24 24" class="bottom-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-tab="help">
+                    <svg viewBox="0 0 24 24" class="bottom-icon"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span>Guide</span>
+                </a>
+            </nav>
+        </main>
+    </div>
+
+    <!-- NOTIFICATION POPUPS (One UI styled toast) -->
+    <div class="notification-toast" id="notification-toast">
+        <div class="toast-content">
+            <span class="toast-title" id="toast-title">Trade Successful</span>
+            <span class="toast-body" id="toast-body">Bought 5 shares of RELIANCE at ₹2,924.50</span>
+        </div>
+    </div>
+
+
+
+    <!-- GOOGLE ACCOUNT CHOOSER MODAL SHEET -->
+    <div class="modal-overlay hidden" id="google-modal">
+        <div class="bottom-sheet-modal">
+            <div class="drag-handle"></div>
+            <div class="modal-header" style="flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative;">
+                <h2 style="margin: 0; font-size: 1.25rem;">Sign in with Google</h2>
+                <span class="modal-subheading" style="color: var(--text-secondary); font-size: 0.75rem;">to continue to ToroFolio</span>
+                <button class="close-btn" id="close-google-btn" style="position: absolute; right: 0; top: 0; font-size: 1.5rem; line-height: 1;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding-top: 10px;">
+                <div id="google-custom-input-area" style="margin-top: 5px; width: 100%;">
+                    <div class="input-group">
+                        <input type="text" id="google-custom-name" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="google-custom-name">Your Full Name</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <input type="email" id="google-custom-email" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="google-custom-email">Google Email Address</label>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="btn-google-custom-submit" style="margin-top: 15px;">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE MODAL SHEET -->
+    <div class="modal-overlay hidden" id="edit-profile-modal">
+        <div class="bottom-sheet-modal">
+            <div class="drag-handle"></div>
+            <div class="modal-header" style="flex-direction: column; align-items: center; text-align: center; gap: 4px; position: relative;">
+                <h2 style="margin: 0; font-size: 1.25rem;">Edit Profile</h2>
+                <span class="modal-subheading" style="color: var(--text-secondary); font-size: 0.75rem;">Update your personal details</span>
+                <button class="close-btn" id="close-edit-profile-btn" style="position: absolute; right: 0; top: 0; font-size: 1.5rem; line-height: 1;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding-top: 10px; max-height: 50vh; overflow-y: auto; padding-right: 4px;">
+                <div style="margin-top: 5px; width: 100%;">
+                    <!-- Avatar Upload Area with Preview -->
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 16px; border: 1.5px dashed var(--border-color);">
+                        <img id="edit-profile-avatar-preview" src="" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--primary-blue); flex-shrink: 0; background: var(--bg-interactive);">
+                        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; overflow: hidden;">
+                            <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700;">Profile Photo</span>
+                            <input type="file" id="edit-profile-avatar-file" accept="image/*" style="font-size: 0.72rem; color: var(--text-primary); cursor: pointer; width: 100%;">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="edit-profile-name" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="edit-profile-name">Full Name</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <input type="email" id="edit-profile-email" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="edit-profile-email">Email Address</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <input type="tel" id="edit-profile-phone" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="edit-profile-phone">Phone Number</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px; position: relative;">
+                        <input type="date" id="edit-profile-dob" style="width: 100%; box-sizing: border-box; background: transparent; border: 1.5px solid var(--border-color); border-radius: 12px; color: var(--text-primary); padding: 12px; font-family: var(--font-heading); font-size: 0.9rem;">
+                        <label for="edit-profile-dob" style="position: absolute; top: -10px; left: 10px; font-size: 0.75rem; background: var(--bg-card); padding: 0 5px; color: var(--text-secondary);">Date of Birth</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <input type="text" id="edit-profile-city" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="edit-profile-city">City</label>
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <input type="text" id="edit-profile-state" placeholder=" " style="width: 100%; box-sizing: border-box;">
+                        <label for="edit-profile-state">State</label>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="btn-edit-profile-submit" style="margin-top: 20px;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDKs (Required for dynamic runtime setup) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Core App Logic -->
+    <script src="app.js?v=3.0"></script>
+</body>
+</html>

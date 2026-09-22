@@ -1,0 +1,61 @@
+# ============================================================
+# One-UI-Trader — .gitignore
+# ============================================================
+
+# --- Secrets & Environment Variables ---
+.env
+.env.local
+.env.*.local
+
+# --- Database (contains real user data) ---
+*.db
+*.sqlite
+*.sqlite3
+torofolio.db
+
+# --- User Data / PII Files ---
+users_details_sheet.csv
+users_google_sheet.csv
+latest_otp.txt
+
+# --- Uploaded User Images ---
+images/
+
+# --- Python Cache ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Debug / Scratch / Temp Files ---
+pristine_step_*.js
+extracted_functions.txt
+extracted_state_funcs.js
+clean_extracted_funcs.js
+
+# --- Node / npm (if added later) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
